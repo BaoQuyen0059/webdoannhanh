@@ -171,6 +171,7 @@
                                         ({{ count($result['reviews']) ?? 0 }})</a>
                                 </li>
                             </ul>
+
                             <div class="tab-content shop_info_tab">
                                 <div class="tab-pane fade show active" id="Description" role="tabpanel"
                                      aria-labelledby="Description-tab">
@@ -183,10 +184,13 @@
                                         </h5>
                                         <ul class="list_none comment_list mt-4">
                                             @if(count($result['reviews']) > 0)
+
                                                 @foreach($result['reviews'] as $review)
                                                     <li>
                                                         <div class="comment_img">
-                                                            <img src="{{ $review->customer->avatar_url }}" alt="user1"/>
+                                                            
+                                                            <!-- <img src="" alt="user1"/> -->
+
                                                         </div>
                                                         <div class="comment_block">
                                                             <div class="rating_wrap">

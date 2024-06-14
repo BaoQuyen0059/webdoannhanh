@@ -53,7 +53,7 @@ class AuthController extends Controller
                 ]);
             }
         } else {
-            // POST Method  ( đoạn này để check điều kiện lúc đăng ký )
+            // POST Method
             $validator = Validator::make($request->all(), [
                 'name' => ['required', 'max:191'],
                 'username' => ['required', 'min:6', 'max:191', 'unique:customers,username'],
@@ -77,7 +77,7 @@ class AuthController extends Controller
                 'checkbox.required' => 'Bạn chưa đồng ý với các điều khoản.',
             ]);
 
-            // Validate ( đoạn này vẫn checkđiều kiện cụ thể là 1 ksy tự đặc biệt - ít nhát 8 kí tự và )
+            // Validate
             if ($validator->fails()) {
                 // check validate and return error message.
                 hwa_notify_error($validator->getMessageBag()->first(), ['title' => 'Thất bại!']);
@@ -96,7 +96,7 @@ class AuthController extends Controller
                     'email' => $request['email'],
                     'password' => bcrypt($request['password']), // Hash
                 ];
-                // Kiểm tra nếu đủ hết điều kiện thì cho phép đăng ký 
+
                 if (!hwa_demo_env()) {
                     // Create new user
                     if ($customer = $this->customer->create($userData)) {
@@ -140,7 +140,7 @@ class AuthController extends Controller
     {
         $path = $this->viewPath;
         if ($request->getMethod() == 'GET') {
-            // GET Method // kiểm tra xem đăng nhập chưa
+            // GET Method
             if (auth()->check()) {
                 // redirect to dashboard if logged
                 return redirect()->intended('/');
@@ -151,11 +151,12 @@ class AuthController extends Controller
                 ]);
             }
         } else {
-            // POST Method nếu chưa đăng nhập thì check email với mk nó nhập đúng không nếu đúng thì check thêm điều kiện 
+            // POST Method
             if (filter_var($request['email'], FILTER_VALIDATE_EMAIL)) {
                 // Validate email
-                $validator_arr = ['email' => ['required', 'max:191', 'email', 'exists:customers,email']];
+                $validator_arr = ['email' => ['required', 'max:191','min:5', 'email', 'exists:customers,email']];
                 $msg_ar = [
+                    'email.min' => 'Email không được dưới 5 ký tự.',
                     'email.required' => 'Email là trường bắt buộc.',
                     'email.max' => 'Email có tối đa 191 ký tự.',
                     'email.email' => 'Email không đúng định dạng.',
@@ -166,7 +167,6 @@ class AuthController extends Controller
                 // Check existed user using email
                 $checkExisted = $this->customer->findByEmail($credentials['email']);
             } else {
-            
                 // Validate username
                 $validator_arr = ['email' => ['required', 'max:191', 'exists:customers,username']];
                 $msg_ar = [
@@ -188,6 +188,28 @@ class AuthController extends Controller
                 'password.min' => 'Mật khẩu có tối thiểu 6 ký tự.',
                 'password.max' => 'Mật khẩu có tối đa 191 ký tự.',
             ]));
+
+            $password = $request->password;
+
+            $specialCharPattern = '/[!@#$%^&*(),.?":{}|<>]/';
+
+            $uppercasePattern = '/[A-Z]/';
+
+            // Validate the password
+            if (preg_match($specialCharPattern, $password) && preg_match($uppercasePattern, $password)) {
+               
+            } else {
+                hwa_notify_error("Tài khoản bị khóa.");
+            }
+            
+
+
+
+
+
+
+
+
 
             if ($validator->fails()) {
                 // check validate and return error message.
@@ -230,10 +252,8 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        // cái này là dùng đẻ đăng xuất
         auth()->logout();
         hwa_notify_success("Đăng xuất thành công.");
         return redirect()->intended('/');
     }
 }
-
